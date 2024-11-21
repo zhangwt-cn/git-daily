@@ -1,1 +1,1 @@
-## git-daily
+# git-daily
