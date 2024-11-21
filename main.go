@@ -90,6 +90,7 @@ func getGitDiff() (string, error) {
 	return string(output), err
 }
 
+// 获取提交信息
 func getGitCommitInfo() (string, string, string, string, error) {
 	commitMsgCmd := exec.Command("git", "log", "-1", "--pretty=%B")
 	commitMsg, err := commitMsgCmd.CombinedOutput()
