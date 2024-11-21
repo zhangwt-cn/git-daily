@@ -139,7 +139,7 @@ func loadConfig(filename string) (*Config, error) {
 }
 
 func analyzeGitDiff(commitMsg, diffContent string) (string, error) {
-	config, err := loadConfig(`config.json`)
+	config, err := loadConfig(`.git/hooks/config.json`)
 	if err != nil {
 		return "", err
 	}
