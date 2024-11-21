@@ -1,5 +1,6 @@
 {
   "openai_base_url": "https://api.oaipro.com/v1",
   "openai_api_key": "sk-xxx",
-  "moderation_model": "claude-3-5-sonnet-20241022"
+  "moderation_model": "claude-3-5-sonnet-20241022",
+  "daily_path": "~/daily"
 }

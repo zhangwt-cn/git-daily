@@ -33,12 +33,17 @@ type Config struct {
 	OpenAIBaseURL   string `json:"openai_base_url"`
 	OpenAIAPIKey    string `json:"openai_api_key"`
 	ModerationModel string `json:"moderation_model"`
+	DailyPath       string `json:"daily_path"`
 }
 
+var config Config
+
 func main() {
+	loadConfig(`.git/hooks/config.json`)
+
 	// 定义日报文件路径
 	date := time.Now().Format("2006-01-02")
-	dailyReportFile := fmt.Sprintf("%s/daily/git_report_%s.md", os.Getenv("HOME"), date)
+	dailyReportFile := fmt.Sprintf("%s/git_report_%s.md", config.DailyPath, date)
 
 	// 获取最新提交的 diff 内容
 	diffContent, err := getGitDiff()
@@ -113,11 +118,11 @@ func getGitCommitInfo() (string, string, string, string, error) {
 	return strings.TrimSpace(string(commitMsg)), strings.TrimSpace(string(commitHash)), commitDate, strings.TrimSpace(repoName), nil
 }
 
-func loadConfig(filename string) (*Config, error) {
+func loadConfig(filename string) {
 	// 打开文件
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("打开配置文件错误: %w", err)
+		fmt.Println("打开配置文件错误: %w", err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -126,23 +131,14 @@ func loadConfig(filename string) (*Config, error) {
 		}
 	}(file)
 
-	// 创建 Config 结构体实例
-	config := &Config{}
-
 	// 创建 JSON 解码器并解码
 	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(config); err != nil {
-		return nil, fmt.Errorf("解析配置文件错误: %w", err)
+	if err := decoder.Decode(&config); err != nil {
+		fmt.Println("解析配置文件错误: %w", err)
 	}
-
-	return config, nil
 }
 
 func analyzeGitDiff(commitMsg, diffContent string) (string, error) {
-	config, err := loadConfig(`.git/hooks/config.json`)
-	if err != nil {
-		return "", err
-	}
 	apiURL := config.OpenAIBaseURL + "/chat/completions"
 	apiKey := config.OpenAIAPIKey
 	payload := map[string]interface{}{
