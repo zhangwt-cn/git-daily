@@ -43,6 +43,11 @@ func main() {
 
 	// 定义日报文件路径
 	date := time.Now().Format("2006-01-02")
+	dailyPath := config.DailyPath
+	if dailyPath == "" {
+		dailyPath = "./daily"
+	}
+
 	dailyReportFile := fmt.Sprintf("%s/git_report_%s.md", config.DailyPath, date)
 
 	// 获取最新提交的 diff 内容
