@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # 触发条件：推送的标签匹配版本号模式，例如 v1.0.0
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+
+  build:
+    needs: create-release
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [ linux, darwin, windows ]
+        goarch: [ amd64, arm64 ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.21.4' # 替换为你的Go版本
+
+      - name: Build the project
+        run: |
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o post-commit-${{ matrix.goos }}-${{ matrix.goarch }} main.go
+
+      - name: Archive the build output
+        run: |
+          zip git-daily-${{ matrix.goos }}-${{ matrix.goarch }}.zip post-commit-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./git-daily-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_name: git-daily-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_content_type: application/zip
