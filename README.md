@@ -45,7 +45,7 @@ tar -xzf git-daily-linux-amd64.tar.gz
 cd your-project
 
 # 复制 git-daily、config.json 到 .git/hooks/post-commit
-cp path/to/git-daily .git/hooks/post-commit
+cp path/to/post-commit .git/hooks/post-commit
 cp path/to/config.json .git/hooks/config.json
 ```
 
