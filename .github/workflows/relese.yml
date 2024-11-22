@@ -49,7 +49,7 @@ jobs:
 
       - name: Archive the build output
         run: |
-          zip git-daily-${{ matrix.goos }}-${{ matrix.goarch }}.zip post-commit-${{ matrix.goos }}-${{ matrix.goarch }}
+          zip git-daily-${{ matrix.goos }}-${{ matrix.goarch }}.zip post-commit-${{ matrix.goos }}-${{ matrix.goarch }} config.json
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1

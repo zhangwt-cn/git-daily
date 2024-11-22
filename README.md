@@ -68,6 +68,7 @@ go build
 2. 将编译好的二进制文件复制到你的项目的 hooks 目录：
 ```bash
 cp git-daily /path/to/your-project/.git/hooks/post-commit
+cp config.json /path/to/your-project/.git/hooks/config.json
 ```
 
 ## 🚀 使用方法
