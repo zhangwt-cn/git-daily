@@ -22,7 +22,7 @@ jobs:
           draft: true
           prerelease: false
       - outputs:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
 
 
 
