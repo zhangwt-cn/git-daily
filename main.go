@@ -38,6 +38,14 @@ type Config struct {
 
 var config Config
 
+const (
+	Red    = "\033[31m"
+	Green  = "\033[32m"
+	Yellow = "\033[33m"
+	Blue   = "\033[34m"
+	Reset  = "\033[0m"
+)
+
 func main() {
 	loadConfig(`.git/hooks/config.json`)
 
@@ -53,14 +61,14 @@ func main() {
 	// 获取最新提交的 diff 内容
 	diffContent, err := getGitDiff()
 	if err != nil || strings.TrimSpace(diffContent) == "" {
-		fmt.Println("No diff content found. Skipping analysis.")
+		fmt.Println(Blue + "No diff content found. Skipping analysis." + Blue)
 		return
 	}
 
 	// 获取提交信息
 	commitMsg, commitHash, commitDate, repoName, err := getGitCommitInfo()
 	if err != nil {
-		fmt.Println("Failed to get commit info:", err)
+		fmt.Println(Red+"Failed to get commit info:"+Red, err)
 		return
 	}
 
@@ -68,7 +76,7 @@ func main() {
 	if _, err := os.Stat(dailyReportFile); os.IsNotExist(err) {
 		err = os.WriteFile(dailyReportFile, []byte(fmt.Sprintf("# Daily Git Report - %s\n", date)), 0644)
 		if err != nil {
-			fmt.Println("Failed to create daily report file:", err)
+			fmt.Println(Red+"Failed to create daily report file:"+Red, err)
 			return
 		}
 	}
@@ -76,21 +84,21 @@ func main() {
 	// 检查是否已记录该提交
 	reportContent, _ := os.ReadFile(dailyReportFile)
 	if strings.Contains(string(reportContent), commitHash) {
-		fmt.Println("Commit already recorded:", commitHash)
+		fmt.Println(Blue+"Commit already recorded:"+Blue, commitHash)
 		return
 	}
 
 	// 调用 OpenAI API 分析提交信息和 diff 内容
 	analysis, err := analyzeGitDiff(commitMsg, diffContent)
 	if err != nil || strings.TrimSpace(analysis) == "" {
-		fmt.Println("Failed to fetch analysis or analysis is empty.")
+		fmt.Println(Red+"Failed to fetch analysis: "+Red, err)
 		return
 	}
 
 	// 追加分析内容到日报文件
 	err = appendToReport(dailyReportFile, repoName, commitHash, commitDate, commitMsg, analysis)
 	if err != nil {
-		fmt.Println("Failed to append to report file:", err)
+		fmt.Println(Red+"Failed to append to report file:"+Red, err)
 	}
 }
 
@@ -127,19 +135,19 @@ func loadConfig(filename string) {
 	// 打开文件
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("打开配置文件错误: %w", err)
+		fmt.Println(Red+"打开配置文件错误: %w"+Red, err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			fmt.Println("关闭文件错误: %w", err)
+			fmt.Println(Red+"关闭文件错误: %w"+Red, err)
 		}
 	}(file)
 
 	// 创建 JSON 解码器并解码
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&config); err != nil {
-		fmt.Println("解析配置文件错误: %w", err)
+		fmt.Println(Red+"解析配置文件错误: %w"+Red, err)
 	}
 }
 
